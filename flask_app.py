@@ -1,16 +1,38 @@
+#!/usr/bin/python3.10
+
+"""
+WSGI config for PythonAnywhere deployment
+This file should be named flask_app.py in your PythonAnywhere files
+
+For PythonAnywhere deployment:
+1. Upload all your files to /home/mathserr/mysite/
+2. Set up Web App with manual configuration (Python 3.10)
+3. Point WSGI configuration to this file
+"""
+
+import sys
+import os
+
+# Add your project directory to Python path
+path = '/home/mathserr/mysite'  # Replace 'mathserr' with your actual username
+if path not in sys.path:
+    sys.path.append(path)
+
 from flask import Flask, render_template, request, jsonify
 import json
-import os
 from datetime import datetime
 
+# Initialize Flask app
 app = Flask(__name__)
 
-# Create data directory if it doesn't exist
-DATA_DIR = 'data'
+# Use absolute paths for PythonAnywhere
+BASE_DIR = '/home/mathserr/mysite'  # Replace 'mathserr' with your actual username
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+SYMPTOM_FILE = os.path.join(DATA_DIR, 'symptom_log.json')
+
+# Ensure data directory exists
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
-
-SYMPTOM_FILE = os.path.join(DATA_DIR, 'symptom_log.json')
 
 def load_symptoms():
     """Load symptoms from JSON file"""
@@ -22,8 +44,14 @@ def load_symptoms():
 
 def save_symptoms(data):
     """Save symptoms to JSON file"""
-    with open(SYMPTOM_FILE, 'w') as f:
-        json.dump(data, f, indent=2)
+    try:
+        with open(SYMPTOM_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        # Log error for debugging
+        with open(os.path.join(BASE_DIR, 'error.log'), 'a') as f:
+            f.write(f"{datetime.now()}: Error saving symptoms: {str(e)}\n")
+        raise
 
 @app.route('/')
 def index():
@@ -68,7 +96,18 @@ def get_all_dates():
     data = load_symptoms()
     return jsonify(list(data.keys()))
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        "status": "healthy",
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "data_file_exists": os.path.exists(SYMPTOM_FILE),
+        "base_dir": BASE_DIR
+    })
+
+# This is required for PythonAnywhere
+application = app
+
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(debug=True)
