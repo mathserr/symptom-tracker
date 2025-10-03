@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .date-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .date-input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .symptom-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .symptom-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .symptom-label {
+            font-size: 16px;
+            color: #333;
+            flex-grow: 1;
+        }
+        .button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button.secondary {
+            background: #6c757d;
+        }
+        .button.secondary:hover {
+            background: #545b62;
+        }
+        .log-display {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            min-height: 60px;
+        }
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .current-date {
+            text-align: center;
+            font-weight: bold;
+            color: #007AFF;
+            margin: 10px 0;
+        }
+        /* iOS Safari specific styles */
+        @supports (-webkit-touch-callout: none) {
+            .button {
+                -webkit-appearance: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Symptom Tracker</h1>
+        
+        <div class="current-date" id="currentDate">
+            Logging for: Loading...
+        </div>
+        
+        <div class="date-section">
+            <label for="dateInput">Change date (YYYY-MM-DD):</label>
+            <input type="date" id="dateInput" class="date-input">
+            <button class="button secondary" onclick="changeDate()">Change Date</button>
+        </div>
+        
+        <div id="symptoms">
+            <div class="symptom-item">
+                <input type="checkbox" class="symptom-checkbox" id="stomach" value="Stomach Pain">
+                <label class="symptom-label" for="stomach">Stomach Pain</label>
+            </div>
+            <div class="symptom-item">
+                <input type="checkbox" class="symptom-checkbox" id="head" value="Head Pain">
+                <label class="symptom-label" for="head">Head Pain</label>
+            </div>
+            <div class="symptom-item">
+                <input type="checkbox" class="symptom-checkbox" id="knee" value="Knee Pain">
+                <label class="symptom-label" for="knee">Knee Pain</label>
+            </div>
+            <div class="symptom-item">
+                <input type="checkbox" class="symptom-checkbox" id="bloated" value="Bloated Feeling">
+                <label class="symptom-label" for="bloated">Bloated Feeling</label>
+            </div>
+        </div>
+        
+        <button class="button" onclick="saveSymptoms()">Save Symptoms</button>
+        
+        <div id="message"></div>
+        
+        <div class="log-display" id="logDisplay">
+            Loading symptoms...
+        </div>
+        
+        <button class="button secondary" onclick="viewAllDates()">View All Dates</button>
+    </div>
+
+    <script>
+        let currentDate = new Date().toISOString().split('T')[0];
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDateDisplay();
+            loadSymptoms();
+            
+            // Set today's date in the date input
+            document.getElementById('dateInput').value = currentDate;
+        });
+        
+        function updateCurrentDateDisplay() {
+            const now = new Date();
+            const dateStr = currentDate;
+            const timeStr = now.toLocaleTimeString();
+            document.getElementById('currentDate').textContent = `Logging for: ${dateStr} ${timeStr}`;
+        }
+        
+        function changeDate() {
+            const dateInput = document.getElementById('dateInput');
+            if (dateInput.value) {
+                currentDate = dateInput.value;
+                updateCurrentDateDisplay();
+                loadSymptoms();
+                showMessage('Date changed to ' + currentDate, 'success');
+            } else {
+                showMessage('Please select a valid date', 'error');
+            }
+        }
+        
+        async function saveSymptoms() {
+            const checkboxes = document.querySelectorAll('.symptom-checkbox');
+            const symptoms = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            try {
+                const response = await fetch('/api/symptoms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date: currentDate,
+                        symptoms: symptoms
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Symptoms saved successfully!', 'success');
+                    loadSymptoms();
+                } else {
+                    showMessage('Error saving symptoms: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error connecting to server: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadSymptoms() {
+            try {
+                const response = await fetch(`/api/symptoms?date=${currentDate}`);
+                const entries = await response.json();
+                
+                // Clear all checkboxes first
+                document.querySelectorAll('.symptom-checkbox').forEach(cb => {
+                    cb.checked = false;
+                });
+                
+                let displayText = `Symptoms for ${currentDate}:\n\n`;
+                
+                if (entries.length > 0) {
+                    const latestEntry = entries[entries.length - 1];
+                    const symptoms = latestEntry.symptoms || [];
+                    const datetime = latestEntry.datetime || '';
+                    
+                    // Update checkboxes
+                    symptoms.forEach(symptom => {
+                        const checkbox = document.querySelector(`input[value="${symptom}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                    
+                    if (symptoms.length > 0) {
+                        displayText += `Logged at: ${datetime}\n\n`;
+                        symptoms.forEach(symptom => {
+                            displayText += `✓ ${symptom}\n`;
+                        });
+                    } else {
+                        displayText += 'No symptoms recorded';
+                    }
+                } else {
+                    displayText += 'No symptoms recorded';
+                }
+                
+                document.getElementById('logDisplay').textContent = displayText;
+                
+            } catch (error) {
+                document.getElementById('logDisplay').textContent = 'Error loading symptoms: ' + error.message;
+            }
+        }
+        
+        async function viewAllDates() {
+            try {
+                const response = await fetch('/api/all-dates');
+                const dates = await response.json();
+                
+                if (dates.length > 0) {
+                    let message = 'Dates with symptom logs:\\n\\n';
+                    dates.sort().reverse().forEach(date => {
+                        message += `• ${date}\\n`;
+                    });
+                    alert(message);
+                } else {
+                    alert('No symptom logs found');
+                }
+            } catch (error) {
+                showMessage('Error loading dates: ' + error.message, 'error');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            
+            // Clear message after 3 seconds
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
