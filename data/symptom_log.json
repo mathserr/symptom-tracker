@@ -1,8 +1,45 @@
 {
   "2025-10-04": [
     {
-      "datetime": "2025-10-04 10:37:08",
-      "symptoms": [],
+      "datetime": "2025-10-04 11:25:53",
+      "symptoms": [
+        "Buikpijn",
+        "Laxeermiddel",
+        "Sport: Zwemmen"
+      ],
+      "cycleDay": 19
+    }
+  ],
+  "2025-10-02": [
+    {
+      "datetime": "2025-10-04 11:26:10",
+      "symptoms": [
+        "Buikpijn",
+        "Laxeermiddel",
+        "Sport: Zwemmen"
+      ],
+      "cycleDay": 19
+    }
+  ],
+  "2025-10-03": [
+    {
+      "datetime": "2025-10-04 11:26:37",
+      "symptoms": [
+        "Stoelgang: Pijnlijk",
+        "Betrekkingen: Pijnlijk"
+      ],
+      "cycleDay": 19
+    }
+  ],
+  "2025-09-30": [
+    {
+      "datetime": "2025-10-04 11:27:03",
+      "symptoms": [
+        "Stoelgang: Goed",
+        "Betrekkingen: Pijnlijk",
+        "Kine/Osteo",
+        "Sport: Krachttraining"
+      ],
       "cycleDay": 19
     }
   ]

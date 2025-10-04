@@ -212,6 +212,76 @@
             border-color: #007AFF;
             box-shadow: 0 0 3px rgba(0, 122, 255, 0.3);
         }
+        .stoelgang-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .stoelgang-item-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .stoelgang-item .symptom-label {
+            flex-grow: 1;
+        }
+        .stoelgang-dropdown {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .stoelgang-dropdown:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .stoelgang-dropdown:enabled {
+            border-color: #007AFF;
+        }
+        .stoelgang-dropdown:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 3px rgba(0, 122, 255, 0.3);
+        }
+        .betrekkingen-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .betrekkingen-item-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .betrekkingen-item .symptom-label {
+            flex-grow: 1;
+        }
+        .betrekkingen-dropdown {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .betrekkingen-dropdown:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .betrekkingen-dropdown:enabled {
+            border-color: #007AFF;
+        }
+        .betrekkingen-dropdown:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 3px rgba(0, 122, 255, 0.3);
+        }
         /* iOS Safari specific styles */
         @supports (-webkit-touch-callout: none) {
             .button {
@@ -250,17 +320,31 @@
                 <input type="checkbox" class="symptom-checkbox" id="buikpijn" value="Buikpijn">
                 <label class="symptom-label" for="buikpijn">Buikpijn</label>
             </div>
-            <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="pijnlijke-stoelgang" value="Pijnlijke Stoelgang">
-                <label class="symptom-label" for="pijnlijke-stoelgang">Pijnlijke Stoelgang</label>
+            <div class="symptom-item stoelgang-item">
+                <div class="stoelgang-item-header">
+                    <input type="checkbox" class="symptom-checkbox" id="stoelgang" value="Stoelgang" onchange="toggleStoelgangDropdown()">
+                    <label class="symptom-label" for="stoelgang">Stoelgang</label>
+                </div>
+                <select id="stoelgangDropdown" class="stoelgang-dropdown" disabled onchange="updateStoelgangValue()">
+                    <option value="">Selecteer type</option>
+                    <option value="Goed">Goed</option>
+                    <option value="Pijnlijk">Pijnlijk</option>
+                </select>
             </div>
             <div class="symptom-item">
                 <input type="checkbox" class="symptom-checkbox" id="laxeermiddel" value="Laxeermiddel">
                 <label class="symptom-label" for="laxeermiddel">Laxeermiddel</label>
             </div>
-            <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="pijnlijke-betrekkingen" value="Pijnlijke Betrekkingen">
-                <label class="symptom-label" for="pijnlijke-betrekkingen">Pijnlijke Betrekkingen</label>
+            <div class="symptom-item betrekkingen-item">
+                <div class="betrekkingen-item-header">
+                    <input type="checkbox" class="symptom-checkbox" id="betrekkingen" value="Betrekkingen" onchange="toggleBetrekkingenDropdown()">
+                    <label class="symptom-label" for="betrekkingen">Betrekkingen</label>
+                </div>
+                <select id="betrekkingenDropdown" class="betrekkingen-dropdown" disabled onchange="updateBetrekkingenValue()">
+                    <option value="">Selecteer type</option>
+                    <option value="Goed">Goed</option>
+                    <option value="Pijnlijk">Pijnlijk</option>
+                </select>
             </div>
             <div class="symptom-item">
                 <input type="checkbox" class="symptom-checkbox" id="kine-osteo" value="Kine/Osteo">
@@ -365,6 +449,60 @@
             }
         }
         
+        function toggleStoelgangDropdown() {
+            const stoelgangCheckbox = document.getElementById('stoelgang');
+            const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+            
+            if (stoelgangCheckbox.checked) {
+                stoelgangDropdown.disabled = false;
+                if (stoelgangDropdown.value === '') {
+                    stoelgangDropdown.focus();
+                }
+            } else {
+                stoelgangDropdown.disabled = true;
+                stoelgangDropdown.value = '';
+                stoelgangCheckbox.value = 'Stoelgang';
+            }
+        }
+        
+        function updateStoelgangValue() {
+            const stoelgangCheckbox = document.getElementById('stoelgang');
+            const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+            
+            if (stoelgangDropdown.value) {
+                stoelgangCheckbox.value = `Stoelgang: ${stoelgangDropdown.value}`;
+            } else {
+                stoelgangCheckbox.value = 'Stoelgang';
+            }
+        }
+        
+        function toggleBetrekkingenDropdown() {
+            const betrekkingenCheckbox = document.getElementById('betrekkingen');
+            const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+            
+            if (betrekkingenCheckbox.checked) {
+                betrekkingenDropdown.disabled = false;
+                if (betrekkingenDropdown.value === '') {
+                    betrekkingenDropdown.focus();
+                }
+            } else {
+                betrekkingenDropdown.disabled = true;
+                betrekkingenDropdown.value = '';
+                betrekkingenCheckbox.value = 'Betrekkingen';
+            }
+        }
+        
+        function updateBetrekkingenValue() {
+            const betrekkingenCheckbox = document.getElementById('betrekkingen');
+            const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+            
+            if (betrekkingenDropdown.value) {
+                betrekkingenCheckbox.value = `Betrekkingen: ${betrekkingenDropdown.value}`;
+            } else {
+                betrekkingenCheckbox.value = 'Betrekkingen';
+            }
+        }
+        
         function changeDate() {
             const dateInput = document.getElementById('dateInput');
             if (dateInput.value) {
@@ -423,6 +561,10 @@
                     cb.checked = false;
                     if (cb.id === 'sport') {
                         cb.value = 'Sport';
+                    } else if (cb.id === 'stoelgang') {
+                        cb.value = 'Stoelgang';
+                    } else if (cb.id === 'betrekkingen') {
+                        cb.value = 'Betrekkingen';
                     }
                 });
                 
@@ -430,6 +572,16 @@
                 const sportDropdown = document.getElementById('sportDropdown');
                 sportDropdown.disabled = true;
                 sportDropdown.value = '';
+                
+                // Reset stoelgang dropdown
+                const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+                stoelgangDropdown.disabled = true;
+                stoelgangDropdown.value = '';
+                
+                // Reset betrekkingen dropdown
+                const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+                betrekkingenDropdown.disabled = true;
+                betrekkingenDropdown.value = '';
                 
                 let displayText = `Symptoms for ${currentDate}:\n\n`;
                 let lastCycleDay = null;
@@ -461,6 +613,60 @@
                             sportCheckbox.value = 'Sport';
                             sportDropdown.disabled = false;
                             sportDropdown.value = '';
+                        // Handle stoelgang dropdown specially
+                        } else if (symptom.startsWith('Stoelgang:')) {
+                            const stoelgangCheckbox = document.getElementById('stoelgang');
+                            const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+                            const stoelgangType = symptom.replace('Stoelgang: ', '');
+                            
+                            stoelgangCheckbox.checked = true;
+                            stoelgangCheckbox.value = symptom;
+                            stoelgangDropdown.disabled = false;
+                            stoelgangDropdown.value = stoelgangType;
+                        } else if (symptom === 'Stoelgang') {
+                            const stoelgangCheckbox = document.getElementById('stoelgang');
+                            const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+                            
+                            stoelgangCheckbox.checked = true;
+                            stoelgangCheckbox.value = 'Stoelgang';
+                            stoelgangDropdown.disabled = false;
+                            stoelgangDropdown.value = '';
+                        // Handle legacy "Pijnlijke Stoelgang" entries
+                        } else if (symptom === 'Pijnlijke Stoelgang') {
+                            const stoelgangCheckbox = document.getElementById('stoelgang');
+                            const stoelgangDropdown = document.getElementById('stoelgangDropdown');
+                            
+                            stoelgangCheckbox.checked = true;
+                            stoelgangCheckbox.value = 'Stoelgang: Pijnlijk';
+                            stoelgangDropdown.disabled = false;
+                            stoelgangDropdown.value = 'Pijnlijk';
+                        // Handle betrekkingen dropdown specially
+                        } else if (symptom.startsWith('Betrekkingen:')) {
+                            const betrekkingenCheckbox = document.getElementById('betrekkingen');
+                            const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+                            const betrekkingenType = symptom.replace('Betrekkingen: ', '');
+                            
+                            betrekkingenCheckbox.checked = true;
+                            betrekkingenCheckbox.value = symptom;
+                            betrekkingenDropdown.disabled = false;
+                            betrekkingenDropdown.value = betrekkingenType;
+                        } else if (symptom === 'Betrekkingen') {
+                            const betrekkingenCheckbox = document.getElementById('betrekkingen');
+                            const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+                            
+                            betrekkingenCheckbox.checked = true;
+                            betrekkingenCheckbox.value = 'Betrekkingen';
+                            betrekkingenDropdown.disabled = false;
+                            betrekkingenDropdown.value = '';
+                        // Handle legacy "Pijnlijke Betrekkingen" entries
+                        } else if (symptom === 'Pijnlijke Betrekkingen') {
+                            const betrekkingenCheckbox = document.getElementById('betrekkingen');
+                            const betrekkingenDropdown = document.getElementById('betrekkingenDropdown');
+                            
+                            betrekkingenCheckbox.checked = true;
+                            betrekkingenCheckbox.value = 'Betrekkingen: Pijnlijk';
+                            betrekkingenDropdown.disabled = false;
+                            betrekkingenDropdown.value = 'Pijnlijk';
                         } else {
                             const checkbox = document.querySelector(`input[value="${symptom}"]`);
                             if (checkbox) checkbox.checked = true;

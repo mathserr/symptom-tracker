@@ -179,14 +179,117 @@
             font-style: italic;
             padding: 40px;
         }
+        .timeline-chart {
+            margin: 20px 0;
+        }
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .chart-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            min-height: 400px;
+        }
+        .chart-grid {
+            display: grid;
+            gap: 2px;
+            min-width: 800px;
+        }
+        .chart-date {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 12px;
+            padding: 4px;
+            text-align: center;
+            border-right: 1px solid #eee;
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .chart-row {
+            display: flex;
+            align-items: center;
+            min-height: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        .chart-row-label {
+            min-width: 120px;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+        .chart-cell {
+            width: 30px;
+            height: 30px;
+            margin: 1px;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+        .chart-cell.active-goed {
+            background-color: #28a745;
+        }
+        .chart-cell.active-pijnlijk {
+            background-color: #dc3545;
+        }
+        .chart-cell.active-general {
+            background-color: #007AFF;
+        }
+        .chart-cell.empty {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .chart-cell:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
         @media (max-width: 600px) {
             .header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .chart-container {
+                padding: 10px;
+            }
+            .chart-row-label {
+                min-width: 80px;
+                font-size: 12px;
+            }
+            .chart-cell {
+                width: 20px;
+                height: 20px;
             }
         }
     </style>
@@ -199,35 +302,27 @@
         </div>
 
         {% if stats.total_entries > 0 %}
-            <!-- Summary Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number">{{ stats.total_entries }}</span>
-                    <div class="stat-label">Total Entries</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">{{ stats.symptom_frequency|length }}</span>
-                    <div class="stat-label">Unique Symptoms</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">
-                        {% if stats.date_range.start and stats.date_range.end %}
-                            {{ ((stats.date_range.end|strptime('%Y-%m-%d')) - (stats.date_range.start|strptime('%Y-%m-%d'))).days + 1 }}
-                        {% else %}
-                            0
-                        {% endif %}
-                    </span>
-                    <div class="stat-label">Days Tracked</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number">
-                        {% if stats.cycle_day_patterns.average %}
-                            {{ "%.1f"|format(stats.cycle_day_patterns.average) }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </span>
-                    <div class="stat-label">Avg Cycle Day</div>
+            <!-- Symptoms Timeline Chart -->
+            <div class="section">
+                <h2>📈 Symptoms Timeline</h2>
+                <div id="timelineChart" class="timeline-chart">
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #28a745;"></div>
+                            <span>Goed</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #dc3545;"></div>
+                            <span>Pijnlijk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #007AFF;"></div>
+                            <span>General</span>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="chartContainer">
+                        <!-- Chart will be generated by JavaScript -->
+                    </div>
                 </div>
             </div>
 
@@ -280,24 +375,7 @@
                 {% endif %}
             </div>
 
-            <!-- Cycle Day Patterns -->
-            {% if stats.cycle_day_patterns.most_common %}
-                <div class="section">
-                    <h2>🔄 Most Common Cycle Days</h2>
-                    <div class="cycle-pattern">
-                        {% for day, count in stats.cycle_day_patterns.most_common %}
-                            <div class="cycle-day">
-                                <span class="cycle-day-number">Day {{ day }}</span>
-                                <span class="cycle-day-count">{{ count }} times</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <p style="color: #666; font-size: 0.9em;">
-                        Range: Day {{ stats.cycle_day_patterns.range.min }} - {{ stats.cycle_day_patterns.range.max }} | 
-                        Average: Day {{ "%.1f"|format(stats.cycle_day_patterns.average) }}
-                    </p>
-                </div>
-            {% endif %}
+
 
             <!-- Monthly Summary -->
             <div class="section">
@@ -336,5 +414,69 @@
             </div>
         {% endif %}
     </div>
+
+    <script>
+        // Chart data from Flask
+        const chartData = {{ stats.timeline_data | tojson | safe }};
+        
+        function generateTimeline() {
+            const container = document.getElementById('chartContainer');
+            if (!chartData || !chartData.dates || chartData.dates.length === 0) {
+                container.innerHTML = '<div class="no-data">No data available for timeline</div>';
+                return;
+            }
+            
+            const dates = chartData.dates;
+            const symptoms = chartData.symptoms;
+            
+            // Create the grid structure
+            let html = '<div class="chart-grid">';
+            
+            // Header row with dates
+            html += '<div style="display: flex;">';
+            html += '<div class="chart-row-label" style="background: #fff; border: none;"></div>'; // Empty corner
+            dates.forEach(date => {
+                html += `<div class="chart-date">${date}</div>`;
+            });
+            html += '</div>';
+            
+            // Symptom rows
+            symptoms.forEach(symptom => {
+                html += '<div class="chart-row">';
+                html += `<div class="chart-row-label">${symptom}</div>`;
+                
+                dates.forEach(date => {
+                    const dayData = chartData.data[date] || {};
+                    const symptomData = dayData[symptom];
+                    
+                    let cellClass = 'chart-cell empty';
+                    let tooltip = `${date}: ${symptom} - Not recorded`;
+                    
+                    if (symptomData) {
+                        if (symptomData.type === 'Goed') {
+                            cellClass = 'chart-cell active-goed';
+                            tooltip = `${date}: ${symptom} - Goed`;
+                        } else if (symptomData.type === 'Pijnlijk') {
+                            cellClass = 'chart-cell active-pijnlijk';
+                            tooltip = `${date}: ${symptom} - Pijnlijk`;
+                        } else {
+                            cellClass = 'chart-cell active-general';
+                            tooltip = `${date}: ${symptom} - Yes`;
+                        }
+                    }
+                    
+                    html += `<div class="${cellClass}" data-tooltip="${tooltip}"></div>`;
+                });
+                
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        // Generate the timeline when page loads
+        document.addEventListener('DOMContentLoaded', generateTimeline);
+    </script>
 </body>
 </html>

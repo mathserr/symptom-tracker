@@ -27,7 +27,8 @@ def get_dashboard_stats(data):
             'symptom_frequency': {},
             'cycle_day_patterns': {},
             'recent_entries': [],
-            'monthly_summary': {}
+            'monthly_summary': {},
+            'timeline_data': {'dates': [], 'symptoms': [], 'data': {}}
         }
     
     # Basic stats
@@ -117,13 +118,17 @@ def get_dashboard_stats(data):
     # Sort recent entries by date (newest first)
     recent_entries.sort(key=lambda x: x['date'], reverse=True)
     
+    # Generate timeline data for chart
+    timeline_data = generate_timeline_data(data)
+    
     return {
         'total_entries': total_entries,
         'date_range': date_range,
         'symptom_frequency': symptom_frequency,
         'cycle_day_patterns': cycle_day_patterns,
         'recent_entries': recent_entries[:7],  # Limit to 7 most recent
-        'monthly_summary': dict(sorted(monthly_summary.items(), reverse=True))
+        'monthly_summary': dict(sorted(monthly_summary.items(), reverse=True)),
+        'timeline_data': timeline_data
     }
 
 def get_symptom_trends(data, symptom_name):
@@ -147,6 +152,49 @@ def get_symptom_trends(data, symptom_name):
             })
     
     return trend_data
+
+def generate_timeline_data(data):
+    """Generate timeline data for the chart visualization"""
+    if not data:
+        return {'dates': [], 'symptoms': [], 'data': {}}
+    
+    # Get all dates and sort them
+    dates = sorted(data.keys())
+    
+    # Get all unique symptoms across all dates
+    all_symptoms = set()
+    timeline_entries = {}
+    
+    for date, entries in data.items():
+        if entries:
+            latest_entry = entries[-1]
+            symptoms = latest_entry.get('symptoms', [])
+            
+            # Process symptoms and extract types for dropdowns
+            processed_symptoms = {}
+            for symptom in symptoms:
+                # Handle dropdown symptoms with types
+                if ':' in symptom:
+                    base_symptom, symptom_type = symptom.split(':', 1)
+                    base_symptom = base_symptom.strip()
+                    symptom_type = symptom_type.strip()
+                    all_symptoms.add(base_symptom)
+                    processed_symptoms[base_symptom] = {'type': symptom_type}
+                else:
+                    # Regular symptoms or dropdown without selection
+                    all_symptoms.add(symptom)
+                    processed_symptoms[symptom] = {'type': 'general'}
+            
+            timeline_entries[date] = processed_symptoms
+    
+    # Convert to sorted lists for consistent ordering
+    symptoms_list = sorted(list(all_symptoms))
+    
+    return {
+        'dates': dates,
+        'symptoms': symptoms_list,
+        'data': timeline_entries
+    }
 
 def get_cycle_analysis(data):
     """Analyze patterns based on cycle days"""
