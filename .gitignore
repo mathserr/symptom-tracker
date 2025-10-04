@@ -42,5 +42,6 @@ Thumbs.db
 # Logs
 *.log
 
-# Local data (optional - remove this line if you want to keep data in git)
-# data/
+# Local data files (should remain local to each deployment)
+data/symptom_log.json
+data/symptom_log_backup.json
