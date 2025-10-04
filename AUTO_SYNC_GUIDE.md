@@ -20,11 +20,20 @@ I've created **multiple sync methods** for you. Choose the one that works best:
 
 ### **Setup on PythonAnywhere (One-time):**
 1. **Open a console** on PythonAnywhere
-2. **Clone your repository:**
+2. **Since mysite directory already exists, initialize Git in it:**
    ```bash
-   cd /home/mathserr  # Replace with your username
-   git clone https://github.com/mathserr/symptom-tracker.git mysite
-   cd mysite
+   cd /home/mathserr/mysite  # Go to existing directory
+   
+   # Initialize Git repository
+   git init
+   
+   # Add your GitHub repository as remote
+   git remote add origin https://github.com/mathserr/symptom-tracker.git
+   
+   # Fetch and pull the latest code
+   git fetch origin
+   git branch -M main
+   git pull origin main
    ```
 
 3. **Set up your web app** to point to this directory
@@ -97,8 +106,23 @@ This directly uploads files via SSH but requires your PythonAnywhere password ea
 ### **Daily Development:**
 1. **Edit code** locally in VS Code
 2. **Run** `quick_sync.bat` to push to GitHub
-3. **In PythonAnywhere console:** `cd /home/mathserr/mysite && git pull origin main`
+3. **In PythonAnywhere console:** 
+   ```bash
+   cd /home/mathserr/mysite
+   git pull origin main
+   ```
 4. **Your app is updated!**
+
+### **If Git Pull Fails:**
+If you get "not a git repository" error, run the setup commands again:
+```bash
+cd /home/mathserr/mysite
+git init
+git remote add origin https://github.com/mathserr/symptom-tracker.git
+git fetch origin
+git branch -M main
+git pull origin main
+```
 
 ### **Even Easier - Bookmark This:**
 Create a bookmark in your browser for the PythonAnywhere console with this command pre-filled, so you just need to click and press Enter.

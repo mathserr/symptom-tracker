@@ -104,10 +104,119 @@
             color: #007AFF;
             margin: 10px 0;
         }
+        .cycle-slider {
+            flex-grow: 1;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        .cycle-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .cycle-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .cycle-input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .cycle-display {
+            text-align: center;
+            font-weight: bold;
+            color: #007AFF;
+            margin-top: 5px;
+            font-size: 18px;
+        }
+        .last-value-display {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .comment-section {
+            margin: 20px 0;
+        }
+        .comment-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            resize: vertical;
+            min-height: 80px;
+            box-sizing: border-box;
+        }
+        .comment-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 5px rgba(0, 122, 255, 0.3);
+        }
+        .comment-input::placeholder {
+            color: #999;
+        }
+        .sport-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .sport-item-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .sport-item .symptom-label {
+            flex-grow: 1;
+        }
+        .sport-dropdown {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .sport-dropdown:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .sport-dropdown:enabled {
+            border-color: #007AFF;
+        }
+        .sport-dropdown:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 3px rgba(0, 122, 255, 0.3);
+        }
         /* iOS Safari specific styles */
         @supports (-webkit-touch-callout: none) {
             .button {
                 -webkit-appearance: none;
+                appearance: none;
             }
         }
     </style>
@@ -124,25 +233,57 @@
             <label for="dateInput">Change date (YYYY-MM-DD):</label>
             <input type="date" id="dateInput" class="date-input">
             <button class="button secondary" onclick="changeDate()">Change Date</button>
+            
+            <div style="margin-top: 15px;">
+                <label for="cycleDay">Cycle Day (1-28):</label>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                    <input type="range" id="cycleDaySlider" class="cycle-slider" min="1" max="28" value="1" oninput="updateCycleDayDisplay()">
+                    <input type="number" id="cycleDayInput" class="cycle-input" min="1" max="28" value="1" onchange="updateCycleDaySlider()">
+                </div>
+                <div id="cycleDayDisplay" class="cycle-display">Day 1</div>
+                <div id="lastCycleDay" class="last-value-display">Last logged: Not set</div>
+            </div>
         </div>
         
         <div id="symptoms">
             <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="stomach" value="Stomach Pain">
-                <label class="symptom-label" for="stomach">Stomach Pain</label>
+                <input type="checkbox" class="symptom-checkbox" id="buikpijn" value="Buikpijn">
+                <label class="symptom-label" for="buikpijn">Buikpijn</label>
             </div>
             <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="head" value="Head Pain">
-                <label class="symptom-label" for="head">Head Pain</label>
+                <input type="checkbox" class="symptom-checkbox" id="pijnlijke-stoelgang" value="Pijnlijke Stoelgang">
+                <label class="symptom-label" for="pijnlijke-stoelgang">Pijnlijke Stoelgang</label>
             </div>
             <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="knee" value="Knee Pain">
-                <label class="symptom-label" for="knee">Knee Pain</label>
+                <input type="checkbox" class="symptom-checkbox" id="laxeermiddel" value="Laxeermiddel">
+                <label class="symptom-label" for="laxeermiddel">Laxeermiddel</label>
             </div>
             <div class="symptom-item">
-                <input type="checkbox" class="symptom-checkbox" id="bloated" value="Bloated Feeling">
-                <label class="symptom-label" for="bloated">Bloated Feeling</label>
+                <input type="checkbox" class="symptom-checkbox" id="pijnlijke-betrekkingen" value="Pijnlijke Betrekkingen">
+                <label class="symptom-label" for="pijnlijke-betrekkingen">Pijnlijke Betrekkingen</label>
             </div>
+            <div class="symptom-item">
+                <input type="checkbox" class="symptom-checkbox" id="kine-osteo" value="Kine/Osteo">
+                <label class="symptom-label" for="kine-osteo">Kine/Osteo</label>
+            </div>
+            <div class="symptom-item sport-item">
+                <div class="sport-item-header">
+                    <input type="checkbox" class="symptom-checkbox" id="sport" value="Sport" onchange="toggleSportDropdown()">
+                    <label class="symptom-label" for="sport">Sport</label>
+                </div>
+                <select id="sportDropdown" class="sport-dropdown" disabled onchange="updateSportValue()">
+                    <option value="">Selecteer activiteit</option>
+                    <option value="Zwemmen">Zwemmen</option>
+                    <option value="Krachttraining">Krachttraining</option>
+                    <option value="Wandelen">Wandelen</option>
+                    <option value="Fietsen">Fietsen</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="comment-section">
+            <label for="commentInput">Additional Comments:</label>
+            <textarea id="commentInput" class="comment-input" placeholder="Add any additional notes or comments..." rows="3"></textarea>
         </div>
         
         <button class="button" onclick="saveSymptoms()">Save Symptoms</button>
@@ -153,7 +294,7 @@
             Loading symptoms...
         </div>
         
-        <button class="button secondary" onclick="viewAllDates()">View All Dates</button>
+        <button class="button secondary" onclick="window.location.href='/dashboard'">📊 View Dashboard</button>
     </div>
 
     <script>
@@ -175,6 +316,55 @@
             document.getElementById('currentDate').textContent = `Logging for: ${dateStr} ${timeStr}`;
         }
         
+        function updateCycleDayDisplay() {
+            const slider = document.getElementById('cycleDaySlider');
+            const input = document.getElementById('cycleDayInput');
+            const display = document.getElementById('cycleDayDisplay');
+            
+            input.value = slider.value;
+            display.textContent = `Day ${slider.value}`;
+        }
+        
+        function updateCycleDaySlider() {
+            const slider = document.getElementById('cycleDaySlider');
+            const input = document.getElementById('cycleDayInput');
+            const display = document.getElementById('cycleDayDisplay');
+            
+            // Validate input
+            if (input.value < 1) input.value = 1;
+            if (input.value > 28) input.value = 28;
+            
+            slider.value = input.value;
+            display.textContent = `Day ${input.value}`;
+        }
+        
+        function toggleSportDropdown() {
+            const sportCheckbox = document.getElementById('sport');
+            const sportDropdown = document.getElementById('sportDropdown');
+            
+            if (sportCheckbox.checked) {
+                sportDropdown.disabled = false;
+                if (sportDropdown.value === '') {
+                    sportDropdown.focus();
+                }
+            } else {
+                sportDropdown.disabled = true;
+                sportDropdown.value = '';
+                sportCheckbox.value = 'Sport';
+            }
+        }
+        
+        function updateSportValue() {
+            const sportCheckbox = document.getElementById('sport');
+            const sportDropdown = document.getElementById('sportDropdown');
+            
+            if (sportDropdown.value) {
+                sportCheckbox.value = `Sport: ${sportDropdown.value}`;
+            } else {
+                sportCheckbox.value = 'Sport';
+            }
+        }
+        
         function changeDate() {
             const dateInput = document.getElementById('dateInput');
             if (dateInput.value) {
@@ -193,6 +383,9 @@
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
             
+            const cycleDay = parseInt(document.getElementById('cycleDayInput').value);
+            const comment = document.getElementById('commentInput').value.trim();
+            
             try {
                 const response = await fetch('/api/symptoms', {
                     method: 'POST',
@@ -201,7 +394,9 @@
                     },
                     body: JSON.stringify({
                         date: currentDate,
-                        symptoms: symptoms
+                        symptoms: symptoms,
+                        cycleDay: cycleDay,
+                        comment: comment
                     })
                 });
                 
@@ -226,31 +421,92 @@
                 // Clear all checkboxes first
                 document.querySelectorAll('.symptom-checkbox').forEach(cb => {
                     cb.checked = false;
+                    if (cb.id === 'sport') {
+                        cb.value = 'Sport';
+                    }
                 });
                 
+                // Reset sport dropdown
+                const sportDropdown = document.getElementById('sportDropdown');
+                sportDropdown.disabled = true;
+                sportDropdown.value = '';
+                
                 let displayText = `Symptoms for ${currentDate}:\n\n`;
+                let lastCycleDay = null;
                 
                 if (entries.length > 0) {
                     const latestEntry = entries[entries.length - 1];
                     const symptoms = latestEntry.symptoms || [];
                     const datetime = latestEntry.datetime || '';
+                    const cycleDay = latestEntry.cycleDay;
+                    const comment = latestEntry.comment || '';
                     
                     // Update checkboxes
                     symptoms.forEach(symptom => {
-                        const checkbox = document.querySelector(`input[value="${symptom}"]`);
-                        if (checkbox) checkbox.checked = true;
+                        // Handle sport dropdown specially
+                        if (symptom.startsWith('Sport:')) {
+                            const sportCheckbox = document.getElementById('sport');
+                            const sportDropdown = document.getElementById('sportDropdown');
+                            const sportActivity = symptom.replace('Sport: ', '');
+                            
+                            sportCheckbox.checked = true;
+                            sportCheckbox.value = symptom;
+                            sportDropdown.disabled = false;
+                            sportDropdown.value = sportActivity;
+                        } else if (symptom === 'Sport') {
+                            const sportCheckbox = document.getElementById('sport');
+                            const sportDropdown = document.getElementById('sportDropdown');
+                            
+                            sportCheckbox.checked = true;
+                            sportCheckbox.value = 'Sport';
+                            sportDropdown.disabled = false;
+                            sportDropdown.value = '';
+                        } else {
+                            const checkbox = document.querySelector(`input[value="${symptom}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        }
                     });
                     
+                    // Update cycle day controls if available
+                    if (cycleDay !== undefined && cycleDay !== null) {
+                        document.getElementById('cycleDaySlider').value = cycleDay;
+                        document.getElementById('cycleDayInput').value = cycleDay;
+                        document.getElementById('cycleDayDisplay').textContent = `Day ${cycleDay}`;
+                        lastCycleDay = cycleDay;
+                    }
+                    
+                    // Update comment field
+                    document.getElementById('commentInput').value = comment;
+                    
+                    displayText += `Logged at: ${datetime}\n`;
+                    if (cycleDay !== undefined && cycleDay !== null) {
+                        displayText += `Cycle Day: ${cycleDay}\n`;
+                    }
+                    displayText += `\n`;
+                    
                     if (symptoms.length > 0) {
-                        displayText += `Logged at: ${datetime}\n\n`;
                         symptoms.forEach(symptom => {
                             displayText += `✓ ${symptom}\n`;
                         });
                     } else {
                         displayText += 'No symptoms recorded';
                     }
+                    
+                    if (comment) {
+                        displayText += `\nComment: ${comment}`;
+                    }
                 } else {
                     displayText += 'No symptoms recorded';
+                    // Clear comment field when no data
+                    document.getElementById('commentInput').value = '';
+                }
+                
+                // Update last cycle day display
+                const lastCycleDayElement = document.getElementById('lastCycleDay');
+                if (lastCycleDay !== null) {
+                    lastCycleDayElement.textContent = `Last logged: Day ${lastCycleDay}`;
+                } else {
+                    lastCycleDayElement.textContent = 'Last logged: Not set';
                 }
                 
                 document.getElementById('logDisplay').textContent = displayText;

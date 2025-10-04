@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Symptom Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        .back-button {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: #545b62;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #007AFF;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007AFF;
+            display: block;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section h2 {
+            color: #333;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .symptom-list {
+            list-style: none;
+            padding: 0;
+        }
+        .symptom-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #28a745;
+        }
+        .symptom-name {
+            font-weight: 500;
+            color: #333;
+        }
+        .symptom-count {
+            background: #007AFF;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .recent-entry {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #17a2b8;
+        }
+        .entry-date {
+            font-weight: bold;
+            color: #007AFF;
+            margin-bottom: 8px;
+        }
+        .entry-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .entry-symptoms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .symptom-tag {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #495057;
+        }
+        .cycle-pattern {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .cycle-day {
+            background: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 60px;
+        }
+        .cycle-day-number {
+            font-weight: bold;
+            color: #1976d2;
+            display: block;
+        }
+        .cycle-day-count {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .monthly-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .month-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .month-stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard</h1>
+            <a href="/" class="back-button">← Back to Tracker</a>
+        </div>
+
+        {% if stats.total_entries > 0 %}
+            <!-- Summary Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.total_entries }}</span>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ stats.symptom_frequency|length }}</span>
+                    <div class="stat-label">Unique Symptoms</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">
+                        {% if stats.date_range.start and stats.date_range.end %}
+                            {{ ((stats.date_range.end|strptime('%Y-%m-%d')) - (stats.date_range.start|strptime('%Y-%m-%d'))).days + 1 }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </span>
+                    <div class="stat-label">Days Tracked</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">
+                        {% if stats.cycle_day_patterns.average %}
+                            {{ "%.1f"|format(stats.cycle_day_patterns.average) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                    <div class="stat-label">Avg Cycle Day</div>
+                </div>
+            </div>
+
+            <!-- Most Common Symptoms -->
+            <div class="section">
+                <h2>🔍 Most Common Symptoms</h2>
+                {% if stats.symptom_frequency %}
+                    <ul class="symptom-list">
+                        {% for symptom, count in stats.symptom_frequency.items() %}
+                            <li class="symptom-item">
+                                <span class="symptom-name">{{ symptom }}</span>
+                                <span class="symptom-count">{{ count }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="no-data">No symptoms recorded yet</div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Entries -->
+            <div class="section">
+                <h2>⏰ Recent Entries (Last 7 Days)</h2>
+                {% if stats.recent_entries %}
+                    {% for entry in stats.recent_entries %}
+                        <div class="recent-entry">
+                            <div class="entry-date">{{ entry.date }}</div>
+                            <div class="entry-details">
+                                {{ entry.datetime }}
+                                {% if entry.cycle_day %}
+                                    | Cycle Day: {{ entry.cycle_day }}
+                                {% endif %}
+                            </div>
+                            {% if entry.symptoms %}
+                                <div class="entry-symptoms">
+                                    {% for symptom in entry.symptoms %}
+                                        <span class="symptom-tag">{{ symptom }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if entry.comment %}
+                                <div style="margin-top: 8px; font-style: italic; color: #666;">
+                                    "{{ entry.comment }}"
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-data">No recent entries</div>
+                {% endif %}
+            </div>
+
+            <!-- Cycle Day Patterns -->
+            {% if stats.cycle_day_patterns.most_common %}
+                <div class="section">
+                    <h2>🔄 Most Common Cycle Days</h2>
+                    <div class="cycle-pattern">
+                        {% for day, count in stats.cycle_day_patterns.most_common %}
+                            <div class="cycle-day">
+                                <span class="cycle-day-number">Day {{ day }}</span>
+                                <span class="cycle-day-count">{{ count }} times</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p style="color: #666; font-size: 0.9em;">
+                        Range: Day {{ stats.cycle_day_patterns.range.min }} - {{ stats.cycle_day_patterns.range.max }} | 
+                        Average: Day {{ "%.1f"|format(stats.cycle_day_patterns.average) }}
+                    </p>
+                </div>
+            {% endif %}
+
+            <!-- Monthly Summary -->
+            <div class="section">
+                <h2>📅 Monthly Summary</h2>
+                {% if stats.monthly_summary %}
+                    <div class="monthly-grid">
+                        {% for month, data in stats.monthly_summary.items() %}
+                            <div class="monthly-card">
+                                <div class="month-title">{{ month }}</div>
+                                <div class="month-stats">
+                                    <div>{{ data.entries }} entries</div>
+                                    <div>{{ data.total_symptoms }} total symptoms</div>
+                                    <div>{{ data.unique_symptoms }} unique symptoms</div>
+                                    {% if data.top_symptoms %}
+                                        <div style="margin-top: 8px;">
+                                            <strong>Top symptoms:</strong><br>
+                                            {% for symptom, count in data.top_symptoms %}
+                                                {{ symptom }} ({{ count }})<br>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-data">No monthly data available</div>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="no-data">
+                <h2>No Data Yet</h2>
+                <p>Start tracking your symptoms to see your dashboard!</p>
+                <a href="/" class="back-button">Start Tracking</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

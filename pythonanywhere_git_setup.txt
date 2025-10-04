@@ -1,0 +1,25 @@
+# Quick Fix Commands for PythonAnywhere
+# Copy and paste these commands one by one in PythonAnywhere console
+
+# 1. Go to your mysite directory
+cd /home/mathserr/mysite
+
+# 2. Initialize Git (this fixes the "not a git repository" error)
+git init
+
+# 3. Add your GitHub repository as the remote source
+git remote add origin https://github.com/mathserr/symptom-tracker.git
+
+# 4. Fetch the repository data
+git fetch origin
+
+# 5. Set up the main branch
+git branch -M main
+
+# 6. Pull the latest code (this might overwrite existing files)
+git pull origin main
+
+# 7. Test that it works
+echo "✅ Git setup complete! Your directory is now synced with GitHub."
+
+# Now you can use "git pull origin main" anytime to update!
