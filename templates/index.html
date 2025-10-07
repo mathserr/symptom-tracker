@@ -384,9 +384,36 @@
     <script>
         let currentDate = new Date().toISOString().split('T')[0];
         
+        // Function to load last cycle day from API
+        async function loadLastCycleDay() {
+            try {
+                const response = await fetch('/api/last-cycle-day');
+                const data = await response.json();
+                
+                if (data.success && data.lastCycleDay !== null) {
+                    return data.lastCycleDay;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error loading last cycle day:', error);
+                return null;
+            }
+        }
+        
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             updateCurrentDateDisplay();
+            
+            // Load last cycle day first
+            const lastCycle = await loadLastCycleDay();
+            if (lastCycle !== null) {
+                // Set default cycle day to last logged value
+                document.getElementById('cycleDaySlider').value = lastCycle;
+                document.getElementById('cycleDayInput').value = lastCycle;
+                document.getElementById('cycleDayDisplay').textContent = `Day ${lastCycle}`;
+                document.getElementById('lastCycleDay').textContent = `Last logged: Day ${lastCycle}`;
+            }
+            
             loadSymptoms();
             
             // Set today's date in the date input
@@ -705,6 +732,12 @@
                     displayText += 'No symptoms recorded';
                     // Clear comment field when no data
                     document.getElementById('commentInput').value = '';
+                    
+                    // If no entry for today, but we have a last cycle day from initialization, keep it
+                    const currentCycleValue = document.getElementById('cycleDayInput').value;
+                    if (currentCycleValue && currentCycleValue !== '1') {
+                        lastCycleDay = parseInt(currentCycleValue);
+                    }
                 }
                 
                 // Update last cycle day display

@@ -70,6 +70,27 @@ def save_symptoms(data):
             pass  # If we can't write to error log, don't crash
         raise
 
+def get_last_cycle_day():
+    """Get the last logged cycle day from previous entries"""
+    data = load_symptoms()
+    
+    if not data:
+        return None
+    
+    # Sort dates in descending order to get the most recent entries first
+    sorted_dates = sorted(data.keys(), reverse=True)
+    
+    # Look through entries starting from most recent
+    for date in sorted_dates:
+        entries = data[date]
+        if entries and isinstance(entries, list):
+            # Get the most recent entry for this date (last in list)
+            latest_entry = entries[-1]
+            if 'cycleDay' in latest_entry and latest_entry['cycleDay'] is not None:
+                return latest_entry['cycleDay']
+    
+    return None
+
 @app.route('/')
 def index():
     """Main page"""
@@ -114,7 +135,7 @@ def save_symptoms_api():
         save_symptoms(data)
         
         return jsonify({"success": True, "message": "Symptoms saved successfully"})
-    except (IOError, OSError, json.JSONEncodeError) as e:
+    except (IOError, OSError) as e:
         return jsonify({"success": False, "message": f"Failed to save symptoms: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"success": False, "message": f"Unexpected error: {str(e)}"}), 500
@@ -124,6 +145,22 @@ def get_all_dates():
     """Get all dates with symptom entries"""
     data = load_symptoms()
     return jsonify(list(data.keys()))
+
+@app.route('/api/last-cycle-day', methods=['GET'])
+def get_last_cycle_day_api():
+    """Get the last logged cycle day"""
+    try:
+        last_cycle = get_last_cycle_day()
+        return jsonify({
+            "success": True,
+            "lastCycleDay": last_cycle,
+            "message": "Last cycle day retrieved successfully" if last_cycle is not None else "No previous cycle day found"
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error retrieving last cycle day: {str(e)}"
+        }), 500
 
 @app.route('/dashboard')
 def dashboard():
