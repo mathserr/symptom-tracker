@@ -213,14 +213,40 @@
             min-width: 800px;
         }
         .chart-date {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-size: 12px;
-            padding: 4px;
+            width: 30px;
+            height: 80px;
+            margin: 1px;
             text-align: center;
             border-right: 1px solid #eee;
             background: #f8f9fa;
             font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2px 0;
+        }
+        .chart-date-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 12px;
+            line-height: 1;
+            margin: 0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .chart-date-cycleday {
+            writing-mode: initial;
+            font-size: 10px;
+            color: #1976d2;
+            margin: 0;
+            line-height: 1;
+            text-align: center;
+        }
+        .chart-header-row {
+            display: flex;
+            align-items: center;
         }
         .chart-row {
             display: flex;
@@ -258,7 +284,6 @@
         }
         .chart-cell.empty {
             background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
         }
         .chart-cell:hover::after {
             content: attr(data-tooltip);
@@ -431,27 +456,26 @@
             
             // Create the grid structure
             let html = '<div class="chart-grid">';
-            
             // Header row with dates
-            html += '<div style="display: flex;">';
+            html += '<div class="chart-header-row">';
             html += '<div class="chart-row-label" style="background: #fff; border: none;"></div>'; // Empty corner
             dates.forEach(date => {
-                html += `<div class="chart-date">${date}</div>`;
+                let cycleDay = (chartData.cycle_days && chartData.cycle_days[date]) ? chartData.cycle_days[date] : '';
+                html += `<div class="chart-date">` +
+                    `<span class="chart-date-vertical">${date}</span>` +
+                    (cycleDay ? `<span class="chart-date-cycleday">${cycleDay}</span>` : '') +
+                    `</div>`;
             });
             html += '</div>';
-            
             // Symptom rows
             symptoms.forEach(symptom => {
                 html += '<div class="chart-row">';
                 html += `<div class="chart-row-label">${symptom}</div>`;
-                
                 dates.forEach(date => {
                     const dayData = chartData.data[date] || {};
                     const symptomData = dayData[symptom];
-                    
                     let cellClass = 'chart-cell empty';
                     let tooltip = `${date}: ${symptom} - Not recorded`;
-                    
                     if (symptomData) {
                         if (symptomData.type === 'Goed') {
                             cellClass = 'chart-cell active-goed';
@@ -464,13 +488,10 @@
                             tooltip = `${date}: ${symptom} - Yes`;
                         }
                     }
-                    
                     html += `<div class="${cellClass}" data-tooltip="${tooltip}"></div>`;
                 });
-                
                 html += '</div>';
             });
-            
             html += '</div>';
             container.innerHTML = html;
         }

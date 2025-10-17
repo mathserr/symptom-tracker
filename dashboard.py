@@ -156,7 +156,7 @@ def get_symptom_trends(data, symptom_name):
 def generate_timeline_data(data):
     """Generate timeline data for the chart visualization"""
     if not data:
-        return {'dates': [], 'symptoms': [], 'data': {}}
+        return {'dates': [], 'symptoms': [], 'data': {}, 'cycle_days': {}}
     
     # Get all dates and sort them
     dates = sorted(data.keys())
@@ -164,11 +164,17 @@ def generate_timeline_data(data):
     # Get all unique symptoms across all dates
     all_symptoms = set()
     timeline_entries = {}
+    cycle_days = {}
     
     for date, entries in data.items():
         if entries:
             latest_entry = entries[-1]
             symptoms = latest_entry.get('symptoms', [])
+            cycle_day = latest_entry.get('cycleDay')
+            
+            # Store cycle day if available
+            if cycle_day is not None:
+                cycle_days[date] = cycle_day
             
             # Process symptoms and extract types for dropdowns
             processed_symptoms = {}
@@ -193,7 +199,8 @@ def generate_timeline_data(data):
     return {
         'dates': dates,
         'symptoms': symptoms_list,
-        'data': timeline_entries
+        'data': timeline_entries,
+        'cycle_days': cycle_days
     }
 
 def get_cycle_analysis(data):

@@ -42,5 +42,22 @@
       ],
       "cycleDay": 19
     }
+  ],
+  "2025-10-07": [
+    {
+      "datetime": "2025-10-07 13:58:45",
+      "symptoms": [],
+      "cycleDay": 23
+    }
+  ],
+  "2025-10-17": [
+    {
+      "datetime": "2025-10-17 20:48:07",
+      "symptoms": [
+        "Betrekkingen: Goed",
+        "Sport: Zwemmen"
+      ],
+      "cycleDay": 23
+    }
   ]
 }
