@@ -4,7 +4,14 @@
 # 1. Go to your mysite directory
 cd /home/mathserr/mysite
 
-# 2. Initialize Git (this fixes the "not a git repository" error)
+# 2. Configure Git identity (required for commits)
+git config --global user.email "mathserr@example.com"
+git config --global user.name "mathserr"
+
+# 3. Configure Git pull strategy (handles divergent branches)
+git config --global pull.rebase false
+
+# 4. Initialize Git (this fixes the "not a git repository" error)
 git init
 
 # 3. Add your GitHub repository as the remote source
@@ -23,3 +30,55 @@ git pull origin main
 echo "✅ Git setup complete! Your directory is now synced with GitHub."
 
 # Now you can use "git pull origin main" anytime to update!
+
+# ===== TROUBLESHOOTING =====
+# If you get "local changes would be overwritten" error:
+
+# SOLUTION FOR PYTHONANYWHERE: Run these commands in order:
+
+# Step 1: Backup your symptom data first!
+cp data/symptom_log.json data/symptom_log_backup.json
+
+# Step 2: Check what Git thinks has changed
+git status
+
+# Step 3: Add and commit your local symptom data
+git add data/symptom_log.json
+git commit -m "Save local symptom data before sync"
+
+# Step 4: Configure pull strategy and then pull the updates
+git config pull.rebase false
+git pull origin main
+
+# Step 5: Remove symptom_log.json from future tracking (so this won't happen again)
+git rm --cached data/symptom_log.json
+git commit -m "Stop tracking symptom_log.json - keep as local file only"
+
+# Alternative quick fix if above doesn't work:
+# git reset --hard HEAD
+# git pull origin main
+# cp data/symptom_log_backup.json data/symptom_log.json
+
+# Alternative if still having issues:
+# Step 1: Backup your symptom data
+cp data/symptom_log.json data/symptom_log_backup.json
+
+# Step 2: Reset the template file to match remote
+git checkout HEAD -- templates/dashboard.html
+
+# Step 3: Pull the updates
+git pull origin main
+
+# Option 2: Commit all local changes first (keeps everything)
+git add .
+git commit -m "Save local changes before updating"
+git pull origin main
+
+# Option 3: Force overwrite ALL local changes (DESTRUCTIVE - will lose local data!)
+git reset --hard HEAD
+git pull origin main
+
+# Option 4: Stash changes temporarily
+git stash
+git pull origin main
+git stash pop  # This restores your stashed changes
