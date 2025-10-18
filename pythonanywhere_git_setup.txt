@@ -1,30 +1,49 @@
-# Quick Fix Commands for PythonAnywhere
+# CLEAN SETUP for PythonAnywhere (after deleting .git folder)
 # Copy and paste these commands one by one in PythonAnywhere console
 
 # 1. Go to your mysite directory
 cd /home/mathserr/mysite
 
-# 2. Configure Git identity (required for commits)
+# 2. Backup your symptom data first!
+cp data/symptom_log.json data/symptom_log_backup.json
+
+# 3. Configure Git identity (required for commits)
 git config --global user.email "mathserr@example.com"
 git config --global user.name "mathserr"
 
-# 3. Configure Git pull strategy (handles divergent branches)
+# 4. Configure Git pull strategy (handles divergent branches)
 git config --global pull.rebase false
 
-# 4. Initialize Git (this fixes the "not a git repository" error)
+# 5. Initialize fresh Git repository
 git init
 
-# 3. Add your GitHub repository as the remote source
+# 6. Add your GitHub repository as the remote source
 git remote add origin https://github.com/mathserr/symptom-tracker.git
 
-# 4. Fetch the repository data
+# 7. Fetch the repository data
 git fetch origin
 
-# 5. Set up the main branch
+# 8. Set up the main branch
 git branch -M main
 
-# 6. Pull the latest code (this might overwrite existing files)
+# 9. Move existing files out of the way (Git won't overwrite untracked files)
+mkdir backup_old_files
+mv .gitignore AUTO_SYNC_GUIDE.md PYTHONANYWHERE_DEPLOYMENT.md dashboard.py flask_app.py github_sync.py pythonanywhere_git_setup.txt quick_sync.bat sync_to_pythonanywhere.py templates backup_old_files/
+
+# 10. Now pull the latest code
 git pull origin main
+
+# 11. Restore your symptom data
+cp data/symptom_log_backup.json data/symptom_log.json
+
+# 12. Check Git status and verify symptom_log.json is ignored
+git status
+
+# If symptom_log.json appears in "Untracked files", then run:
+# git rm --cached data/symptom_log.json
+# git commit -m "Stop tracking symptom_log.json - keep as local file only"
+
+# If it doesn't appear, then it's already properly ignored! ✅
 
 # 7. Test that it works
 echo "✅ Git setup complete! Your directory is now synced with GitHub."
@@ -54,10 +73,22 @@ git pull origin main
 git rm --cached data/symptom_log.json
 git commit -m "Stop tracking symptom_log.json - keep as local file only"
 
-# Alternative quick fix if above doesn't work:
-# git reset --hard HEAD
-# git pull origin main
-# cp data/symptom_log_backup.json data/symptom_log.json
+# SIMPLE SOLUTION: Overwrite everything and restore symptom data
+# Step 1: Backup your symptom data
+cp data/symptom_log.json data/symptom_log_backup.json
+
+# Step 2: Abort any unfinished merge and force overwrite with GitHub version
+git merge --abort
+git reset --hard HEAD
+git clean -fd
+git pull origin main
+
+# Step 3: Restore your symptom data
+cp data/symptom_log_backup.json data/symptom_log.json
+
+# Step 4: Stop tracking symptom_log.json for future
+git rm --cached data/symptom_log.json
+git commit -m "Stop tracking symptom_log.json - keep as local file only"
 
 # Alternative if still having issues:
 # Step 1: Backup your symptom data
